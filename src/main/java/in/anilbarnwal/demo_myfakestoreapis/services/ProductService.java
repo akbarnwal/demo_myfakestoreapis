@@ -1,22 +1,24 @@
 package in.anilbarnwal.demo_myfakestoreapis.services;
 
+import in.anilbarnwal.demo_myfakestoreapis.models.Product;
 import in.anilbarnwal.demo_myfakestoreapis.dtos.ProductRequestBody;
-import in.anilbarnwal.demo_myfakestoreapis.dtos.ProductResponse;
+import in.anilbarnwal.demo_myfakestoreapis.dtos.FakeStoreResponseDto;
+import in.anilbarnwal.demo_myfakestoreapis.exceptions.ProductNotFoundException;
 
 import java.util.List;
 
 public interface ProductService {
-    ProductResponse getSingleProduct(int productIndex);
+    Product getSingleProduct(int productIndex) throws ProductNotFoundException;
 
-    List<ProductResponse> getAllProducts();
+    List<Product> getAllProducts() throws ProductNotFoundException;
 
-    ProductResponse addNewProduct(ProductRequestBody productRequestBody);
+    Product addNewProduct(ProductRequestBody productRequestBody);
 
     List<String> getAllCategories();
 
-    List<ProductResponse> getCategoryProducts(String categoryType);
+    List<FakeStoreResponseDto> getCategoryProducts(String categoryType) throws ProductNotFoundException;
 
     void deleteProduct(int productIndex);
 
-    ProductResponse updateProduct(ProductRequestBody productRequestBody, int productId);
+    FakeStoreResponseDto updateProduct(ProductRequestBody productRequestBody, int productId);
 }

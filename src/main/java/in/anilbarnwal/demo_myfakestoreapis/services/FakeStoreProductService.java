@@ -1,47 +1,72 @@
 package in.anilbarnwal.demo_myfakestoreapis.services;
 
+import in.anilbarnwal.demo_myfakestoreapis.models.Category;
+import in.anilbarnwal.demo_myfakestoreapis.models.Product;
 import in.anilbarnwal.demo_myfakestoreapis.dtos.ProductRequestBody;
-import in.anilbarnwal.demo_myfakestoreapis.dtos.ProductResponse;
+import in.anilbarnwal.demo_myfakestoreapis.dtos.FakeStoreResponseDto;
+import in.anilbarnwal.demo_myfakestoreapis.exceptions.ProductNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class FakeStoreProductService implements ProductService {
 
-    private RestTemplate restTemplate;
+    private final ModelMapper modelMapper;
+    private final RestTemplate restTemplate;
 
-    public FakeStoreProductService(RestTemplate restTemplate) {
+    public FakeStoreProductService(RestTemplate restTemplate, ModelMapper modelMapper) {
         this.restTemplate = restTemplate;
+        this.modelMapper = modelMapper;
     }
 
     @Override
-    public ProductResponse getSingleProduct(int productIndex) {
-        ProductResponse productResponse = restTemplate.getForObject(
+    public Product getSingleProduct(int productIndex) throws ProductNotFoundException {
+        FakeStoreResponseDto fakeStoreResponseDto = restTemplate.getForObject(
                 "https://fakestoreapi.com/products/" + productIndex,
-                ProductResponse.class);
-        return productResponse;
+                FakeStoreResponseDto.class);
+        if(fakeStoreResponseDto == null){
+            throw new ProductNotFoundException("Error : Product Not found");
+        }
+        return fakeStoreResponseDto.toProduct();
     }
 
     @Override
-    public List<ProductResponse> getAllProducts() {
-        List<ProductResponse> products = restTemplate.getForObject(
+    public List<Product> getAllProducts() throws ProductNotFoundException {
+        FakeStoreResponseDto[] fakeStoreResponseDtos = restTemplate.getForObject(
                 "https://fakestoreapi.com/products",
-                List.class
+//                List.class
+                FakeStoreResponseDto[].class
         );
-        return products;
+
+        if(fakeStoreResponseDtos == null || fakeStoreResponseDtos.length == 0){
+            throw new ProductNotFoundException("Error : Product list is empty");
+        }
+
+        List<Product> productList = new ArrayList<>();
+        for (FakeStoreResponseDto fakeStore : fakeStoreResponseDtos) {
+            Product product = modelMapper.map(fakeStore, Product.class);
+
+            Category category = new Category();
+            category.setTitle(fakeStore.getCategory());
+            product.setCategory(category);
+
+            productList.add(product);
+        }
+        return productList;
     }
 
     @Override
-    public ProductResponse addNewProduct(ProductRequestBody productRequestBody) {
-        ProductResponse productResponse = restTemplate.postForObject(
+    public Product addNewProduct(ProductRequestBody productRequestBody) {
+        FakeStoreResponseDto fakeStoreResponseDto = restTemplate.postForObject(
                 "https://fakestoreapi.com/products",
                 productRequestBody,
-                ProductResponse.class
+                FakeStoreResponseDto.class
         );
-        return productResponse;
+        return fakeStoreResponseDto.toProduct();
     }
 
     @Override
@@ -53,12 +78,15 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getCategoryProducts(String categoryType) {
-        List<ProductResponse> products = restTemplate.getForObject(
+    public List<FakeStoreResponseDto> getCategoryProducts(String categoryType) throws ProductNotFoundException {
+        List<FakeStoreResponseDto> products = restTemplate.getForObject(
           "https://fakestoreapi.com/products/category/" + categoryType,
                 List.class
         );
 
+        if(products == null || products.isEmpty()){
+            throw new ProductNotFoundException("Error: Product category not found. Please try different product types");
+        }
         return products;
     }
 
@@ -71,17 +99,17 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
-    public ProductResponse updateProduct(ProductRequestBody productRequestBody, int productId) {
+    public FakeStoreResponseDto updateProduct(ProductRequestBody productRequestBody, int productId) {
         try{
-            ProductResponse productResponse = restTemplate.patchForObject(
+            FakeStoreResponseDto fakeStoreResponseDto = restTemplate.patchForObject(
                     "https://fakestoreapi.com/products/" + productId,
                     productRequestBody,
-                    ProductResponse.class
+                    FakeStoreResponseDto.class
             );
-            return productResponse;
+            return fakeStoreResponseDto;
         }catch(Exception e){
             e.printStackTrace();
-            return new ProductResponse();
+            return new FakeStoreResponseDto();
         }
 
     }

@@ -1,34 +1,51 @@
 package in.anilbarnwal.demo_myfakestoreapis.controllers;
 
-import in.anilbarnwal.demo_myfakestoreapis.dtos.ProductRequestBody;
-import in.anilbarnwal.demo_myfakestoreapis.dtos.ProductResponse;
+import in.anilbarnwal.demo_myfakestoreapis.dtos.*;
+import in.anilbarnwal.demo_myfakestoreapis.exceptions.ProductNotFoundException;
+import in.anilbarnwal.demo_myfakestoreapis.models.Product;
 import in.anilbarnwal.demo_myfakestoreapis.services.ProductService;
+import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class ProductControllers {
-    private ProductService productService;
+    private final ModelMapper modelMapper;
+    private final ProductService productService;
 
-    public ProductControllers(ProductService productService) {
+    public ProductControllers(ProductService productService, ModelMapper modelMapper) {
         this.productService = productService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/products/{productIndex}")
-    public ProductResponse getSingleProduct(@PathVariable int productIndex) {
-        return productService.getSingleProduct(productIndex);
+    public ResponseEntity<ProductResponseDto> getSingleProduct(@PathVariable int productIndex) throws ProductNotFoundException {
+        Product product = productService.getSingleProduct(productIndex);
+        ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
+        return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
     }
 
     @PostMapping("/addNewProduct")
-    public ProductResponse addNewProduct(@RequestBody ProductRequestBody productRequestBody) {
-        return productService.addNewProduct(productRequestBody);
+    public ResponseEntity<ProductResponseDto> addNewProduct(@RequestBody ProductRequestBody productRequestBody) {
+        Product product =  productService.addNewProduct(productRequestBody);
+        ProductResponseDto productResponseDto =  convertProductToProductResponseDto(product);
+        return new ResponseEntity<>(productResponseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/products")
-    public List<ProductResponse> getAllProducts() {
-        return productService.getAllProducts();
+    public List<ProductResponseDto> getAllProducts() throws ProductNotFoundException {
+        List<Product> products =  productService.getAllProducts();
+
+        List<ProductResponseDto> productResponseDtoList = new ArrayList<>();
+        for (Product product : products) {
+            ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
+            productResponseDtoList.add(productResponseDto);
+        }
+        return productResponseDtoList;
     }
 
     @GetMapping("/categories")
@@ -36,15 +53,14 @@ public class ProductControllers {
         return productService.getAllCategories();
     }
 
-    @GetMapping("/products/category/{categoryType}")
-    public List<ProductResponse> getCategoryProducts(@PathVariable String categoryType) {
+    @GetMapping("/category/{categoryType}")
+    public List<FakeStoreResponseDto> getCategoryProducts(@PathVariable String categoryType) throws ProductNotFoundException {
         return productService.getCategoryProducts(categoryType);
     }
 
-    //    @DeleteMapping("products/{productIndex}")
-    @DeleteMapping("products/{productIndex}")
-    public ResponseEntity<String> deleteProduct(@PathVariable int productIndex) {
-        productService.deleteProduct(productIndex);
+    @DeleteMapping("products/{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable int productId) {
+        productService.deleteProduct(productId);
 //        if (deleted) {
 //        return ResponseEntity.ok("Product deleted successfully");
 //        } else {
@@ -53,8 +69,15 @@ public class ProductControllers {
     }
 
     @PatchMapping("products/{productId}")
-    public ProductResponse updateProduct(@RequestBody ProductRequestBody productRequestBody, @PathVariable int productId){
+    public FakeStoreResponseDto updateProduct(@RequestBody ProductRequestBody productRequestBody, @PathVariable int productId){
         return productService.updateProduct(productRequestBody, productId);
     }
 
+    ///////////////////Mapper class //////////////
+    private ProductResponseDto convertProductToProductResponseDto(Product product) {
+        String catTitle = product.getCategory().getTitle();
+        ProductResponseDto productResponseDto = modelMapper.map(product, ProductResponseDto.class);
+        productResponseDto.setCategory(catTitle);
+        return productResponseDto;
+    }
 }
