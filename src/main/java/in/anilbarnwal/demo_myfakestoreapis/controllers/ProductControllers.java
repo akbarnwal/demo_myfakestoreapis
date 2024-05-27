@@ -55,7 +55,7 @@ public class ProductControllers {
         return productService.getAllCategories();
     }
 
-    @GetMapping("/category/{categoryType}")
+    @GetMapping("/categories/{categoryType}")
     public List<FakeStoreResponseDto> getCategoryProducts(@PathVariable String categoryType) throws ProductNotFoundException {
         return productService.getCategoryProducts(categoryType);
     }
@@ -68,8 +68,24 @@ public class ProductControllers {
     }
 
     @PatchMapping("products/{productId}")
-    public FakeStoreResponseDto updateProduct(@RequestBody ProductRequestBody productRequestBody, @PathVariable int productId){
-        return productService.updateProduct(productRequestBody, productId);
+    public ResponseEntity<ProductResponseDto> updateProduct(@RequestBody ProductRequestBody productRequestBody, @PathVariable Long productId) throws ProductNotFoundException {
+        Product product = productService.updateProduct(productRequestBody, productId);
+        ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
+        return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/products/{productId}")
+    public ResponseEntity<ProductResponseDto> replaceProduct(@RequestBody ProductRequestBody requestBody, @PathVariable Long productId) throws ProductNotFoundException {
+        Product product = productService.replaceProduct(
+                productId,
+                requestBody.getTitle(),
+                requestBody.getDescription(),
+                requestBody.getPrice(),
+                requestBody.getImage(),
+                requestBody.getCategory()
+        );
+        ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
+        return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
     }
 
     ///////////////////Mapper class //////////////

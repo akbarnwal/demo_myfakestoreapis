@@ -77,9 +77,10 @@ public class SelfProductService implements ProductService {
         return list;
     }
 
+    //TODO: Need to implement proper
     @Override
     public List<FakeStoreResponseDto> getCategoryProducts(String categoryType) throws ProductNotFoundException {
-        //TODO: Will correct it later
+
 //        Category category = categoryRepository.findByTitle(categoryType);
 //        if (category == null) {
 //            throw new ProductNotFoundException("Category with title " + categoryType + " not found");
@@ -110,7 +111,38 @@ public class SelfProductService implements ProductService {
     }
 
     @Override
-    public FakeStoreResponseDto updateProduct(ProductRequestBody productRequestBody, int productId) {
+    public Product updateProduct(ProductRequestBody requestBody, Long productId) throws ProductNotFoundException {
+        Product product = productRepository.findByIdIs(productId);
+        if (product == null) {
+            throw new ProductNotFoundException("Product with id " + productId + " not found");
+        }
+        if (!product.getTitle().equals(requestBody.getTitle())) {
+            product.setTitle(requestBody.getTitle());
+        }
+        if (!product.getPrice().equals(requestBody.getPrice())) {
+            product.setPrice(requestBody.getPrice());
+        }
+        if (!product.getDescription().equals(requestBody.getDescription())) {
+            product.setDescription(requestBody.getDescription());
+        }
+        if (!product.getImage().equals(requestBody.getImage())) {
+            product.setImage(requestBody.getImage());
+        }
+        if(requestBody.getCategory() != null){
+            Category categoryInDb = categoryRepository.findByTitle(requestBody.getCategory());
+            if (categoryInDb == null) {
+                categoryInDb = new Category();
+            }
+            categoryInDb.setTitle(requestBody.getCategory());
+            product.setCategory(categoryInDb);
+        }
+        productRepository.save(product);
+        return product;
+    }
+
+    //TODO: PENDING: Need to implement it
+    @Override
+    public Product replaceProduct(Long productId, String title, String description, String price, String image, String category) throws ProductNotFoundException {
         return null;
     }
 }

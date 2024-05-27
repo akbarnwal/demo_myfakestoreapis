@@ -6,6 +6,8 @@ import in.anilbarnwal.demo_myfakestoreapis.dtos.ProductRequestBody;
 import in.anilbarnwal.demo_myfakestoreapis.dtos.FakeStoreResponseDto;
 import in.anilbarnwal.demo_myfakestoreapis.exceptions.ProductNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -99,19 +101,51 @@ public class FakeStoreProductService implements ProductService {
         return null;
     }
 
-    @Override
-    public FakeStoreResponseDto updateProduct(ProductRequestBody productRequestBody, int productId) {
-        try{
-            FakeStoreResponseDto fakeStoreResponseDto = restTemplate.patchForObject(
-                    "https://fakestoreapi.com/products/" + productId,
-                    productRequestBody,
-                    FakeStoreResponseDto.class
-            );
-            return fakeStoreResponseDto;
-        }catch(Exception e){
-            e.printStackTrace();
-            return new FakeStoreResponseDto();
-        }
+//    @Override
+//    public Product updateProduct(ProductRequestBody productRequestBody, Long productId) {
+//        try{
+//            FakeStoreResponseDto fakeStoreResponseDto = restTemplate.patchForObject(
+//                    "https://fakestoreapi.com/products/" + productId,
+//                    productRequestBody,
+//                    FakeStoreResponseDto.class
+//            );
+//            return fakeStoreResponseDto;
+//        }catch(Exception e){
+//            e.printStackTrace();
+//            return new FakeStoreResponseDto();
+//        }
+//    }
 
+    //TODO: Need to correct it later
+    @Override
+    public Product updateProduct(ProductRequestBody productRequestBody, Long productId) throws ProductNotFoundException {
+        return null;
     }
+
+    @Override
+    public Product replaceProduct(Long productId, String title, String description, String price, String image, String category) throws ProductNotFoundException {
+        FakeStoreResponseDto requestDto = new FakeStoreResponseDto();
+        requestDto.setCategory(category);
+        requestDto.setDescription(description);
+        requestDto.setImage(image);
+        requestDto.setPrice(price);
+        requestDto.setTitle(title);
+
+        // create request entity to send in put request body to fakestore
+        HttpEntity<FakeStoreResponseDto> requestEntity = new HttpEntity<>(requestDto);
+
+        FakeStoreResponseDto fakeStoreResponseDto = restTemplate.exchange(
+                "https://fakestoreapi.com/products/" + productId,
+                HttpMethod.PUT,
+                requestEntity,
+                FakeStoreResponseDto.class
+        ).getBody();
+
+        if(fakeStoreResponseDto == null){
+            throw new ProductNotFoundException("Error : Product Not found");
+        }
+        return fakeStoreResponseDto.toProduct();
+    }
+
+
 }
