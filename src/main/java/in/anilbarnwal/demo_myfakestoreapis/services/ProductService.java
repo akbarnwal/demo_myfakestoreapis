@@ -8,7 +8,7 @@ import in.anilbarnwal.demo_myfakestoreapis.exceptions.ProductNotFoundException;
 import java.util.List;
 
 public interface ProductService {
-    Product getSingleProduct(int productIndex) throws ProductNotFoundException;
+    Product getSingleProduct(Long productId) throws ProductNotFoundException;
 
     List<Product> getAllProducts() throws ProductNotFoundException;
 
@@ -18,7 +18,7 @@ public interface ProductService {
 
     List<FakeStoreResponseDto> getCategoryProducts(String categoryType) throws ProductNotFoundException;
 
-    void deleteProduct(int productIndex);
+    Product deleteProduct(Long productId) throws ProductNotFoundException;
 
     FakeStoreResponseDto updateProduct(ProductRequestBody productRequestBody, int productId);
 }

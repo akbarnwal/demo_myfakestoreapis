@@ -5,6 +5,7 @@ import in.anilbarnwal.demo_myfakestoreapis.exceptions.ProductNotFoundException;
 import in.anilbarnwal.demo_myfakestoreapis.models.Product;
 import in.anilbarnwal.demo_myfakestoreapis.services.ProductService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,14 +18,15 @@ public class ProductControllers {
     private final ModelMapper modelMapper;
     private final ProductService productService;
 
-    public ProductControllers(ProductService productService, ModelMapper modelMapper) {
+    public ProductControllers(@Qualifier("selfProductService") ProductService productService,
+                              ModelMapper modelMapper) {
         this.productService = productService;
         this.modelMapper = modelMapper;
     }
 
-    @GetMapping("/products/{productIndex}")
-    public ResponseEntity<ProductResponseDto> getSingleProduct(@PathVariable int productIndex) throws ProductNotFoundException {
-        Product product = productService.getSingleProduct(productIndex);
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<ProductResponseDto> getSingleProduct(@PathVariable Long productId) throws ProductNotFoundException {
+        Product product = productService.getSingleProduct(productId);
         ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
         return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
     }
@@ -59,13 +61,10 @@ public class ProductControllers {
     }
 
     @DeleteMapping("products/{productId}")
-    public ResponseEntity<String> deleteProduct(@PathVariable int productId) {
-        productService.deleteProduct(productId);
-//        if (deleted) {
-//        return ResponseEntity.ok("Product deleted successfully");
-//        } else {
-            return ResponseEntity.notFound().build();
-//        }
+    public ResponseEntity<ProductResponseDto> deleteProduct(@PathVariable Long productId) throws ProductNotFoundException {
+        Product product = productService.deleteProduct(productId);
+        ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
+        return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
     }
 
     @PatchMapping("products/{productId}")
