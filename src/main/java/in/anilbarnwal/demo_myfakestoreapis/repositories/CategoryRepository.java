@@ -9,6 +9,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     Category findByTitle(String title);
 
     List<Category> findAll();
-//    List<Category> findAlls();
+
+    List<Category> findByTitleEndingWith(String ending);
+
 
 }

@@ -6,11 +6,13 @@ import in.anilbarnwal.demo_myfakestoreapis.repositories.CategoryRepository;
 import in.anilbarnwal.demo_myfakestoreapis.repositories.ProductRepository;
 import in.anilbarnwal.demo_myfakestoreapis.repositories.projections.ProductProjection;
 import in.anilbarnwal.demo_myfakestoreapis.repositories.projections.ProductWithIdTitleAndCategoryType;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 class DemoMyfakestoreapisApplicationTests {
@@ -83,9 +85,34 @@ class DemoMyfakestoreapisApplicationTests {
         System.out.println(productProjection.getId());
         System.out.println(productProjection.getTitle());
         System.out.println(productProjection.getDescription());
-
     }
 
+    @Test
+    @Transactional
+    void getFetchType(){
+        Optional<Category> categoryOptional = categoryRepository.findById(4L);
+//        Optional<Category> category = categoryRepository.findById(3L);
+        if(categoryOptional.isPresent()){
+            System.out.println(categoryOptional.get().getTitle());
+            List<Product> list = categoryOptional.get().getProducts();
+            for (Product p : list) {
+                System.out.println(p.getTitle());
+            }
+        }
+    }
 
-
+    @Test
+    @Transactional
+    void getFetchMode(){
+        List<Category> categories = categoryRepository.findByTitleEndingWith("iphone");
+        System.out.printf("categories count: %d\n", categories.size());
+        for (Category category : categories) {
+            System.out.println("Category : " + category.getTitle());
+            List<Product> products = category.getProducts();
+            System.out.printf("products count: %d\n", products.size());
+            for (Product p : products) {
+                System.out.println(p.getTitle());
+            }
+        }
+    }
 }
