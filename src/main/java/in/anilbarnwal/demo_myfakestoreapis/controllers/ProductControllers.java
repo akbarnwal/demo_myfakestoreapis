@@ -6,6 +6,7 @@ import in.anilbarnwal.demo_myfakestoreapis.models.Product;
 import in.anilbarnwal.demo_myfakestoreapis.services.ProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,14 +34,14 @@ public class ProductControllers {
 
     @PostMapping("/products")
     public ResponseEntity<ProductResponseDto> addNewProduct(@RequestBody ProductRequestBody productRequestBody) {
-        Product product =  productService.addNewProduct(productRequestBody);
-        ProductResponseDto productResponseDto =  convertProductToProductResponseDto(product);
+        Product product = productService.addNewProduct(productRequestBody);
+        ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
         return new ResponseEntity<>(productResponseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/products")
     public List<ProductResponseDto> getAllProducts() throws ProductNotFoundException {
-        List<Product> products =  productService.getAllProducts();
+        List<Product> products = productService.getAllProducts();
 
         List<ProductResponseDto> productResponseDtoList = new ArrayList<>();
         for (Product product : products) {
@@ -48,6 +49,23 @@ public class ProductControllers {
             productResponseDtoList.add(productResponseDto);
         }
         return productResponseDtoList;
+    }
+
+    @GetMapping("/products-pagination")
+    public ResponseEntity<List<ProductResponseDto>> getAllProducts(
+            @RequestParam("pageNumber") int pageNumber,
+            @RequestParam("pageSize") int pageSize,
+            @RequestParam("sortParam") String sortParam,
+            @RequestParam("sortBy") String sortBy)
+            throws ProductNotFoundException {
+        Page<Product> products = productService.getAllProducts(pageNumber, pageSize, sortParam, sortBy);
+
+        List<ProductResponseDto> productResponseDtoList = new ArrayList<>();
+        for (Product product : products.getContent()) {
+            ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
+            productResponseDtoList.add(productResponseDto);
+        }
+        return new ResponseEntity<>(productResponseDtoList, HttpStatus.OK);
     }
 
     @GetMapping("/categories")

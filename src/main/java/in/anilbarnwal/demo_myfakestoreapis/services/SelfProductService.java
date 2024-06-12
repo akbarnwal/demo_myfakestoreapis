@@ -8,6 +8,9 @@ import in.anilbarnwal.demo_myfakestoreapis.models.Product;
 import in.anilbarnwal.demo_myfakestoreapis.repositories.CategoryRepository;
 import in.anilbarnwal.demo_myfakestoreapis.repositories.ProductRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,6 +49,20 @@ public class SelfProductService implements ProductService {
     @Override
     public List<Product> getAllProducts() throws ProductNotFoundException {
         return productRepository.findAll();
+    }
+
+    @Override
+    public Page<Product> getAllProducts(int pageNumber, int pageSize, String sortParam, String sortBy) throws ProductNotFoundException {
+//        if(sortBy == null || sortBy.isEmpty()) {
+//            return productRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortParam).descending()));
+//        } else if (sortBy.equals("ASC")) {
+//            return productRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortParam).ascending()));
+//        }else{
+//            return productRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortParam).descending()));
+//        }
+        return productRepository.findAll(PageRequest.of
+                (pageNumber, pageSize,
+                        Sort.by(sortParam).descending()));
     }
 
     @Override

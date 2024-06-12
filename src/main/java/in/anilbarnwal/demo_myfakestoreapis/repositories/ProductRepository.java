@@ -3,6 +3,8 @@ package in.anilbarnwal.demo_myfakestoreapis.repositories;
 import in.anilbarnwal.demo_myfakestoreapis.models.Product;
 import in.anilbarnwal.demo_myfakestoreapis.repositories.projections.ProductProjection;
 import in.anilbarnwal.demo_myfakestoreapis.repositories.projections.ProductWithIdTitleAndCategoryType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,6 +13,8 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAll();
+
+    Page<Product> findAll(Pageable pageable);
 
     Product save(Product product);
 

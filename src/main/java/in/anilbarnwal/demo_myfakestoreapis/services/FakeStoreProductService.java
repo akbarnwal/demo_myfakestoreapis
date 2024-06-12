@@ -6,6 +6,7 @@ import in.anilbarnwal.demo_myfakestoreapis.dtos.ProductRequestBody;
 import in.anilbarnwal.demo_myfakestoreapis.dtos.FakeStoreResponseDto;
 import in.anilbarnwal.demo_myfakestoreapis.exceptions.ProductNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,11 @@ public class FakeStoreProductService implements ProductService {
             productList.add(product);
         }
         return productList;
+    }
+
+    @Override
+    public Page<Product> getAllProducts(int pageNumber, int pageSize, String sortParam, String sortBy) throws ProductNotFoundException {
+        return null;
     }
 
     @Override
