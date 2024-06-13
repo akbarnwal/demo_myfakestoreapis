@@ -11,7 +11,7 @@
     <groupId>in.anilbarnwal</groupId>
     <artifactId>demo_myfakestoreapis</artifactId>
 <!--    <version>0.0.1-SNAPSHOT</version>-->
-    <version>0.0.1-BATMAN</version>
+    <version>0.0.2-BATMAN2</version>
     <name>demo_myfakestoreapis</name>
     <description>demo_myfakestoreapis</description>
     <properties>

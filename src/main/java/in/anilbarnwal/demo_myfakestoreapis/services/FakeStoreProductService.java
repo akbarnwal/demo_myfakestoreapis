@@ -129,7 +129,7 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
-    public Product replaceProduct(Long productId, String title, String description, String price, String image, String category) throws ProductNotFoundException {
+    public Product replaceProduct(Long productId, String title, String description, Double price, String image, String category) throws ProductNotFoundException {
         FakeStoreResponseDto requestDto = new FakeStoreResponseDto();
         requestDto.setCategory(category);
         requestDto.setDescription(description);

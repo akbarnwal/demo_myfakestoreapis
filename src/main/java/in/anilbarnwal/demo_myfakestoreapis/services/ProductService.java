@@ -25,6 +25,6 @@ public interface ProductService {
 
     Product updateProduct(ProductRequestBody productRequestBody, Long productId) throws ProductNotFoundException;
 
-    Product replaceProduct(Long productId, String title, String description, String price, String image, String category) throws ProductNotFoundException;
+    Product replaceProduct(Long productId, String title, String description, Double price, String image, String category) throws ProductNotFoundException;
 
 }

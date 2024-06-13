@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class ProductRequestBody {
     private String title;
-    private String price;
+    private Double price;
     private String category;
     private String description;
     private String image;

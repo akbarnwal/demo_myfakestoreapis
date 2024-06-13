@@ -113,4 +113,11 @@ public class ProductControllers {
         productResponseDto.setCategory(catTitle);
         return productResponseDto;
     }
+
+//    @GetMapping("/")
+//    public ResponseEntity<String> sayHello(){
+//        return new ResponseEntity<>("Hello sir!", HttpStatus.OK);
+//    }
+
+
 }

@@ -137,7 +137,7 @@ class DemoMyfakestoreapisApplicationTests {
             Product product = new Product();
             product.setTitle(productName + "-" + i);
             product.setDescription( productDescription + " # " + i);
-            product.setPrice("" +basePrice + i);
+            product.setPrice(basePrice + i);
             Category category = new Category();
             category.setTitle(categoryName);
             product.setCategory(category);

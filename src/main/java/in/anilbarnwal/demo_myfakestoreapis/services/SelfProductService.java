@@ -62,7 +62,7 @@ public class SelfProductService implements ProductService {
 //        }
         return productRepository.findAll(PageRequest.of
                 (pageNumber, pageSize,
-                        Sort.by(sortParam).descending()));
+                        Sort.by(sortParam).ascending()));
     }
 
     @Override
@@ -159,7 +159,7 @@ public class SelfProductService implements ProductService {
 
     //TODO: PENDING: Need to implement it
     @Override
-    public Product replaceProduct(Long productId, String title, String description, String price, String image, String category) throws ProductNotFoundException {
+    public Product replaceProduct(Long productId, String title, String description, Double price, String image, String category) throws ProductNotFoundException {
         return null;
     }
 }
