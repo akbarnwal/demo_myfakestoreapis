@@ -7,6 +7,7 @@ import in.anilbarnwal.demo_myfakestoreapis.dtos.FakeStoreResponseDto;
 import in.anilbarnwal.demo_myfakestoreapis.exceptions.ProductNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -20,21 +21,42 @@ public class FakeStoreProductService implements ProductService {
 
     private final ModelMapper modelMapper;
     private final RestTemplate restTemplate;
+    private final RedisTemplate redisTemplate;
 
-    public FakeStoreProductService(RestTemplate restTemplate, ModelMapper modelMapper) {
+    public FakeStoreProductService(RestTemplate restTemplate, ModelMapper modelMapper, RedisTemplate redisTemplate) {
         this.restTemplate = restTemplate;
         this.modelMapper = modelMapper;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public Product getSingleProduct(Long productId) throws ProductNotFoundException {
+
+        // Check in Cache
+        Product productInCache = (Product) redisTemplate.opsForHash().
+                get("PRODUCTS", "PRODUCT_" + productId);
+
+        if (productInCache != null) {
+            // Cache Hit
+            System.out.println("Cache hit for product " + productId);
+            return productInCache;
+        }
+
+        // Cache miss
+        System.out.println("Cache miss for product " + productId);
+
+
         FakeStoreResponseDto fakeStoreResponseDto = restTemplate.getForObject(
                 "https://fakestoreapi.com/products/" + productId,
                 FakeStoreResponseDto.class);
         if(fakeStoreResponseDto == null){
             throw new ProductNotFoundException("Error : Product Not found");
         }
-        return fakeStoreResponseDto.toProduct();
+
+        Product product =  fakeStoreResponseDto.toProduct();
+        // Add it to cache for future reference
+        redisTemplate.opsForHash().put("PRODUCTS", "PRODUCT_" + productId, product);
+        return product;
     }
 
     @Override

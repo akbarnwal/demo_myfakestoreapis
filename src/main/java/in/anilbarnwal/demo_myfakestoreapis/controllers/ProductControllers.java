@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/products")
 public class ProductControllers {
     private final ModelMapper modelMapper;
     private final ProductService productService;
@@ -25,13 +26,15 @@ public class ProductControllers {
         this.modelMapper = modelMapper;
     }
 
-    @GetMapping("/products/{productId}")
+//    @GetMapping("/products/{productId}")
+    @GetMapping("{productId}")
     public ResponseEntity<ProductResponseDto> getSingleProduct(@PathVariable Long productId) throws ProductNotFoundException {
         Product product = productService.getSingleProduct(productId);
         ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
         return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
     }
 
+//    @PostMapping("/products")
     @PostMapping("/products")
     public ResponseEntity<ProductResponseDto> addNewProduct(@RequestBody ProductRequestBody productRequestBody) {
         Product product = productService.addNewProduct(productRequestBody);
@@ -39,7 +42,8 @@ public class ProductControllers {
         return new ResponseEntity<>(productResponseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/products")
+//    @GetMapping("/products")
+    @GetMapping()
     public List<ProductResponseDto> getAllProducts() throws ProductNotFoundException {
         List<Product> products = productService.getAllProducts();
 
@@ -78,21 +82,22 @@ public class ProductControllers {
         return productService.getCategoryProducts(categoryType);
     }
 
-    @DeleteMapping("products/{productId}")
+//    @DeleteMapping("products/{productId}")
+    @DeleteMapping("{productId}")
     public ResponseEntity<ProductResponseDto> deleteProduct(@PathVariable Long productId) throws ProductNotFoundException {
         Product product = productService.deleteProduct(productId);
         ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
         return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
     }
 
-    @PatchMapping("products/{productId}")
+    @PatchMapping("{productId}")
     public ResponseEntity<ProductResponseDto> updateProduct(@RequestBody ProductRequestBody productRequestBody, @PathVariable Long productId) throws ProductNotFoundException {
         Product product = productService.updateProduct(productRequestBody, productId);
         ProductResponseDto productResponseDto = convertProductToProductResponseDto(product);
         return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
     }
 
-    @PutMapping("/products/{productId}")
+    @PutMapping("{productId}")
     public ResponseEntity<ProductResponseDto> replaceProduct(@RequestBody ProductRequestBody requestBody, @PathVariable Long productId) throws ProductNotFoundException {
         Product product = productService.replaceProduct(
                 productId,
